@@ -1,0 +1,181 @@
+{"swagger": "2.0",
+"info": {"title": "Power BI Client","description": "this is a test for pwr bi connector", "version": "1.0"},
+"host": "api.powerbi.com",
+"basePath": "/",
+"schemes": ["https"],
+"consumes": [],
+"produces": [],
+"paths": {"/v1.0/myorg/groups/{groupId}/datasets/{datasetId}/refreshes": {
+            
+            "post": {
+                "tags": [
+                    "Datasets"
+                ],
+                "summary": "Triggers a refresh for the specified dataset from the specified workspace.",
+                "description": "<br/>In Shared capacities this call is limited to eight times per day (including refreshes executed via Scheduled Refresh)<br/>In Premium capacities this call is not limited in number of times per day, but only by the available resources in the capacity, hence if overloaded, the refresh execution may be throttled until the load is reduced. If this throttling exceeds 1 hour, the refresh will fail.<br/><br/>**Required scope**: Dataset.ReadWrite.All<br/>To set the permissions scope, see [Register an app](https://docs.microsoft.com/power-bi/developer/register-app).",
+                "operationId": "Datasets_RefreshDatasetInGroup",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                ],
+                "parameters": [
+                    {
+                        "name": "groupId",
+                        "in": "path",
+                        "required": true,
+                        "description": "The workspace id",
+                        "type": "string",
+                        "format": "uuid"
+                    },
+                    {
+                        "name": "datasetId",
+                        "description": "The dataset id",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "refreshRequest",
+                        "in": "body",
+                        "required": false,
+                        "schema": {
+                            "$ref": "#/definitions/RefreshRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "202": {
+                        "description": "Accepted"
+                    }
+                },
+                "x-ms-examples": {
+                    "example": {
+                        "parameters": {
+                            "groupId": "f089354e-8366-4e18-aea3-4cb4a3a50b48",
+                            "datasetId": "cfafbeb1-8037-4d0c-896e-a46fb27ff229",
+                            "refreshRequest": {
+                                "notifyOption": "MailOnFailure"
+                            }
+                        },
+                        "responses": {
+                            "202": {}
+                        }
+                    }
+                },
+                "deprecated": false
+            }
+        }
+},
+"definitions": {
+	"Refresh": {
+            "description": "A Power BI refresh history entry",
+            "properties": {
+                "refreshType": {
+                    "type": "string",
+                    "description": "Type of refresh request",
+                    "enum": [
+                        "Scheduled",
+                        "OnDemand",
+                        "ViaApi"
+                    ],
+                    "x-ms-enum": {
+                        "name": "RefreshType",
+                        "modelAsExtensible": true,
+                        "values": [
+                            {
+                                "value": "Scheduled",
+                                "description": "Refresh was triggered by the dataset refresh schedule setting"
+                            },
+                            {
+                                "value": "OnDemand",
+                                "description": "Refresh was triggered interactively threw Power BI portal"
+                            },
+                            {
+                                "value": "ViaApi",
+                                "description": "Refresh was triggered by an Api call"
+                            }
+                        ]
+                    }
+                },
+                "startTime": {
+                    "type": "string",
+                    "format": "date-time",
+                    "description": "DateTime of start"
+                },
+                "endTime": {
+                    "type": "string",
+                    "format": "date-time",
+                    "description": "DateTime of termination (may be empty if refresh is progress)"
+                },
+                "serviceExceptionJson": {
+                    "type": "string",
+                    "description": "Failure error code in json format (not empty only on error)."
+                },
+                "status": {
+                    "type": "string",
+                    "description": "'Unknown' - Unknown completion state or refresh is in progress. endTime will be empty with this status. <br/>'Completed' - refresh completed successfully <br/> 'Failed' - Refresh failed. serviceExceptionJson will contain the error. <br/>'Disabled' - Refresh disabled by Selective Refresh."
+                },
+                "requestId": {
+                    "type": "string",
+                    "description": "The identifier of the Refresh request. <br/>Please provide this identifier in all service requests"
+                }
+            }
+        },
+  "RefreshRequest": {
+            "description": "Power BI refresh request",
+            "properties": {
+                "notifyOption": {
+                    "type": "string",
+                    "description": "Mail notification options (success and/or failure, or none)",
+                    "enum": [
+                        "NoNotification",
+                        "MailOnFailure",
+                        "MailOnCompletion"
+                    ],
+                    "x-ms-enum": {
+                        "name": "NotifyOption",
+                        "modelAsExtensible": true,
+                        "values": [
+                            {
+                                "value": "NoNotification",
+                                "description": "No notification will be sent"
+                            },
+                            {
+                                "value": "MailOnFailure",
+                                "description": "Mail notification will be sent on refresh failure"
+                            },
+                            {
+                                "value": "MailOnCompletion",
+                                "description": "Mail notification will be sent on refresh completion, including either failure and success"
+                            }
+                        ]
+                    }
+                }
+            },
+            "required": [
+                "notifyOption"
+            ]
+        },
+  "Refreshes": {
+		"description": "Odata response wrapper for a Power BI refresh history",
+		"properties": {
+			"odata.context": {
+				"type": "string"
+			},
+			"value": {
+				"type": "array",
+				"description": "The Refresh history list",
+				"items": {
+					"$ref": "#/definitions/Refresh"
+				}
+			}
+		}
+	}
+},
+"parameters": {},
+"responses": {},
+"securityDefinitions": {},
+"security": [],
+"tags": []
+}
